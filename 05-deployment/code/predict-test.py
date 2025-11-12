@@ -29,7 +29,6 @@ customer = {
     "totalcharges": (24 * 29.85)
 }
 
-
 response = requests.post(url, json=customer).json()
 print(response)
 

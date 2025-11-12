@@ -1,15 +1,19 @@
-FROM python:3.8.12-slim
+FROM python:3.12-slim AS base
 
-RUN pip install pipenv
+RUN pip install uv
 
 WORKDIR /app
 
-COPY ["Pipfile", "Pipfile.lock", "./"]
+COPY pyproject_copy.toml ./pyproject.toml
 
-RUN pipenv install --system --deploy
+COPY uv_copy.lock ./uv.lock
+
+RUN uv sync --frozen --no-dev
 
 COPY ["predict.py", "model_C=1.0.bin", "./"]
 
 EXPOSE 9696
 
-ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:9696", "predict:app"]
+ENTRYPOINT ["uv", "run", "gunicorn", "--bind=0.0.0.0:9696", "predict:app"]
+
+# docker run -it --rm -p 9696:9696 zoomcamp-test:latest
